@@ -1,12 +1,12 @@
 {
-    "name": "noteskeep-vscode",
-    "displayName": "Noteskeep",
-    "description": "Folds html comments in markdown docs by default",
-    "version": "0.0.1",
+    "name": "notekeep-vscode",
+    "displayName": "Notekeep",
+    "description": "Folds frontmatter sections in markdown documents",
+    "version": "0.1.0",
     "publisher": "robertarles",
     "repository": {
         "type": "git",
-        "url": "https://github.com/robertarles/noteskeep.vscode.git"
+        "url": "https://github.com/robertarles/notekeep.vscode.git"
     },
     "engines": {
         "vscode": "^1.87.0"
@@ -21,22 +21,23 @@
     "contributes": {
         "commands": [
             {
-                "command": "noteskeep.foldAll",
-                "title": "Noteskeep: Fold All HTML Comments"
+                "command": "notekeep.fold-frontmatter",
+                "title": "Notekeep: Fold Frontmatter"
             },
             {
-                "command": "noteskeep.unfoldAll",
-                "title": "Noteskeep: Unfold All HTML Comments"
+                "command": "notekeep.unfold-active",
+                "title": "Notekeep: Unfold Active Section"
             },
             {
-                "command": "noteskeep.toggleFold",
-                "title": "Noteskeep: Toggle Fold HTML Comment"
+                "command": "notekeep.active",
+                "title": "Notekeep: Active (Fold All + Unfold Active)"
             }
         ]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
+        "build": "npm run compile && npm run package",
         "watch": "tsc -watch -p ./",
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint src --ext ts",
