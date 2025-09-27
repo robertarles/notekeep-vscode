@@ -2,7 +2,7 @@
     "name": "notekeep-vscode",
     "displayName": "Notekeep",
     "description": "Folds frontmatter sections in markdown documents",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "publisher": "robertarles",
     "repository": {
         "type": "git",

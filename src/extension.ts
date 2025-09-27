@@ -19,40 +19,73 @@ export function activate(context: vscode.ExtensionContext) {
 		return fileName.toLowerCase().startsWith('todo');
 	};
 
+	const findActiveSectionsUnderTodo = (document: vscode.TextDocument): number[] => {
+		const text = document.getText();
+		const lines = text.split('\n');
+		const activeSectionLines: number[] = [];
+
+		// Find all TODO sections and their levels
+		const todoSections: Array<{line: number, level: number}> = [];
+
+		for (let i = 0; i < lines.length; i++) {
+			const line = lines[i];
+			const headerMatch = line.match(/^(#+)\s+.*todo.*$/i);
+			if (headerMatch) {
+				todoSections.push({
+					line: i,
+					level: headerMatch[1].length
+				});
+			}
+		}
+
+		// For each TODO section, find active subsections
+		for (const todoSection of todoSections) {
+			const todoLevel = todoSection.level;
+			const todoLine = todoSection.line;
+
+			// Find the end of this TODO section (next header of same or higher level, or end of document)
+			let sectionEnd = lines.length;
+			for (let i = todoLine + 1; i < lines.length; i++) {
+				const headerMatch = lines[i].match(/^(#+)\s+/);
+				if (headerMatch && headerMatch[1].length <= todoLevel) {
+					sectionEnd = i;
+					break;
+				}
+			}
+
+			// Within this TODO section, find active subsections
+			for (let i = todoLine + 1; i < sectionEnd; i++) {
+				const line = lines[i];
+				const headerMatch = line.match(/^(#+)\s+.*active.*$/i);
+				if (headerMatch && headerMatch[1].length > todoLevel) {
+					activeSectionLines.push(i);
+					console.log(`Found active section at line ${i} under TODO section at line ${todoLine}`);
+				}
+			}
+		}
+
+		return activeSectionLines;
+	};
+
 	const foldAllForEditor = async (editor: vscode.TextEditor) => {
 		try {
 			console.log('Attempting foldAll for editor:', editor.document.uri.toString());
 			await vscode.window.showTextDocument(editor.document, editor.viewColumn, false);
 			await vscode.commands.executeCommand('editor.foldAll');
 			console.log('FoldAll executed for:', editor.document.fileName);
-			
-			// After folding all, automatically unfold any "active" section
-			const document = editor.document;
-			const text = document.getText();
-			const lines = text.split('\n');
-			
-			// Search for sections with "active" in the name (case-insensitive)
-			for (let i = 0; i < lines.length; i++) {
-				const line = lines[i];
-				// Check for markdown headings (starts with #)
-				if (line.match(/^#+\s+.*active.*$/i)) {
-					// Move cursor to this line and unfold
-					const pos = new vscode.Position(i, 0);
-					editor.selection = new vscode.Selection(pos, pos);
-					await vscode.commands.executeCommand('editor.unfold');
-					console.log('Auto-unfolded active section at line:', i);
-					break;
-				}
-				// Check for other potential section markers (like HTML comments, code blocks, etc.)
-				else if (line.match(/<!--\s*.*active.*\s*-->/i) || 
-						 line.match(/```\s*.*active.*/i) ||
-						 line.match(/^\s*-\s+.*active.*$/i)) {
-					const pos = new vscode.Position(i, 0);
-					editor.selection = new vscode.Selection(pos, pos);
-					await vscode.commands.executeCommand('editor.unfold');
-					console.log('Auto-unfolded active section at line:', i);
-					break;
-				}
+
+			// After folding all, automatically unfold any "active" sections under "TODO" sections
+			const activeSectionLines = findActiveSectionsUnderTodo(editor.document);
+
+			for (const lineNumber of activeSectionLines) {
+				const pos = new vscode.Position(lineNumber, 0);
+				editor.selection = new vscode.Selection(pos, pos);
+				await vscode.commands.executeCommand('editor.unfold');
+				console.log('Auto-unfolded active section at line:', lineNumber);
+			}
+
+			if (activeSectionLines.length === 0) {
+				console.log('No active sections found under TODO sections');
 			}
 		} catch (err) {
 			console.log('Error during foldAllForEditor:', err);
@@ -125,7 +158,7 @@ export function activate(context: vscode.ExtensionContext) {
 		console.log('Fold frontmatter command executed');
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
-			vscode.window.showInformationMessage('No active editor found');
+			console.log('No active editor found for fold frontmatter command');
 			return;
 		}
 
@@ -135,7 +168,7 @@ export function activate(context: vscode.ExtensionContext) {
 		// Find the first --- marker
 		const firstMarkerIndex = text.indexOf('---');
 		if (firstMarkerIndex === -1) {
-			vscode.window.showInformationMessage('No frontmatter markers found in this document');
+			console.log('No frontmatter markers found in this document');
 			return;
 		}
 
@@ -151,58 +184,39 @@ export function activate(context: vscode.ExtensionContext) {
 	// Register a toggle command: fold all then unfold active
 	const notekeepToggle = vscode.commands.registerCommand('notekeep.active', () => {
 		console.log('=== Notekeep.active command executed ===');
-		vscode.window.showInformationMessage('Notekeep.active command triggered!');
-		
+
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
-			vscode.window.showInformationMessage('No active editor found');
+			console.log('No active editor found');
 			return;
 		}
-		
+
 		console.log('Active editor found:', editor.document.fileName);
 		void foldAllForEditor(editor);
 	});
 
 	// Register the unfold active section command
-	const unfoldActive = vscode.commands.registerCommand('notekeep.unfold-active', () => {
+	const unfoldActive = vscode.commands.registerCommand('notekeep.unfold-active', async () => {
 		console.log('Unfold active command executed');
 		const editor = vscode.window.activeTextEditor;
 		if (!editor) {
-			vscode.window.showInformationMessage('No active editor found');
+			console.log('No active editor found for unfold active command');
 			return;
 		}
 
-		const document = editor.document;
-		const text = document.getText();
-		const lines = text.split('\n');
-		let foundActiveSection = false;
+		const activeSectionLines = findActiveSectionsUnderTodo(editor.document);
 
-		// Search for sections with "active" in the name (case-insensitive)
-		for (let i = 0; i < lines.length; i++) {
-			const line = lines[i];
-			// Check for markdown headings (starts with #)
-			if (line.match(/^#+\s+.*active.*$/i)) {
-				// Move cursor to this line and unfold
-				const pos = new vscode.Position(i, 0);
-				editor.selection = new vscode.Selection(pos, pos);
-				vscode.commands.executeCommand('editor.unfold');
-				foundActiveSection = true;
-				break;
-			}
-			// Check for other potential section markers (like HTML comments, code blocks, etc.)
-			else if (line.match(/<!--\s*.*active.*\s*-->/i) || 
-					 line.match(/```\s*.*active.*/i) ||
-					 line.match(/^\s*-\s+.*active.*$/i)) {
-				const pos = new vscode.Position(i, 0);
-				editor.selection = new vscode.Selection(pos, pos);
-				vscode.commands.executeCommand('editor.unfold');
-				foundActiveSection = true;
-				break;
-			}
+		for (const lineNumber of activeSectionLines) {
+			const pos = new vscode.Position(lineNumber, 0);
+			editor.selection = new vscode.Selection(pos, pos);
+			await vscode.commands.executeCommand('editor.unfold');
+			console.log('Manually unfolded active section at line:', lineNumber);
 		}
 
-		if (!foundActiveSection) {
-			vscode.window.showInformationMessage('No section named "active" found in this document');
+		if (activeSectionLines.length === 0) {
+			console.log('No active sections found under TODO sections');
+		} else {
+			console.log(`Unfolded ${activeSectionLines.length} active section(s)`);
 		}
 	});
 

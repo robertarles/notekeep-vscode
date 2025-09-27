@@ -1,22 +1,36 @@
 ---
-Notekeep VSCode extension
+title: Notekeep VS Code Extension
 ---
-
-A VS Code extension that provides tools for managing Markdown documents, specifically for folding frontmatter sections.
+A VS Code extension that provides intelligent folding for Markdown documents, specifically designed for managing todo lists and notes with automatic frontmatter and section management.
 
 ## Features
 
-- **Fold Frontmatter:** Automatically folds the frontmatter section (content between `---` markers) at the beginning of Markdown files to keep your documents clean and readable.
+- **Auto-Fold Todo Files**: Automatically folds all content when opening Markdown files that start with "todo" (e.g., `todo.md`, `todo.personal.md`, `todo.disney.md`)
+- **Smart Active Section Detection**: Automatically unfolds any section containing "active" in the name after folding everything
+- **Frontmatter Folding**: Provides manual control over frontmatter sections
+- **Intelligent Folding**: Only folds on file open, not on tab switching, with smart reprocessing when files are reopened
 
 ## Commands
 
-- `notekeep.fold-frontmatter`: Folds the frontmatter section in the active Markdown editor.
+- `notekeep.fold-frontmatter`: Manually folds the frontmatter section in the active Markdown editor
+- `notekeep.unfold-active`: Unfolds any section named "active" in the current document
+- `notekeep.active`: Toggle command that folds all content then unfolds the active section
 
 ## Usage
 
-1. Open a Markdown file that contains frontmatter (content between `---` markers at the top)
-2. Run the command `notekeep.fold-frontmatter` from the Command Palette
-3. The frontmatter section will be automatically folded
+### Automatic Behavior
+
+1. **Open any Markdown file** that starts with "todo" (e.g., `todo.md`, `todo.personal.md`)
+2. **Content automatically folds** - everything collapses including frontmatter
+3. **Active section automatically unfolds** - any section with "active" in the name becomes visible
+4. **Switch between tabs** without triggering refolding
+5. **Close and reopen** the same file to trigger folding again
+
+### Manual Commands
+
+- **Fold Frontmatter**: Use `notekeep.fold-frontmatter` to manually fold just the frontmatter
+- **Unfold Active**: Use `notekeep.unfold-active` to manually unfold any "active" section
+- **Toggle All**: Use `notekeep.active` to manually fold everything then unfold the active section
 
 ## Frontmatter Detection
 
@@ -30,48 +44,24 @@ date: 2024-01-01
 ---
 ```
 
-## Contributions
+## Active Section Detection
 
-Contributions are welcome!
+The extension automatically detects and unfolds sections containing "active" in various formats:
 
-### Developer Setup
+- **Markdown Headings**: `# Active Tasks`, `## Currently Active`, `### ACTIVE`
+- **HTML Comments**: `<!-- Active section -->`
+- **Code Blocks**: ````active code`
+- **List Items**: `- Active item`
 
-1. Clone the repository:
+## Installation
 
-   ```bash
-   git clone https://github.com/robertarles/notekeep.vscode.git
-   ```
+Install from the [Visual Studio Code Marketplace](https://marketplace.visualstudio.com/items?itemName=robertarles.notekeep-vscode) or search for "Notekeep" in VS Code's Extensions view.
 
-2. Navigate to the project directory:
+## Requirements
 
-   ```bash
-   cd notekeep.vscode
-   ```
+- Visual Studio Code 1.87.0 or higher
+- Markdown files for full functionality
 
-3. Install the dependencies:
+## License
 
-   ```bash
-   npm install
-   ```
-
-4. Open the project in VS Code.
-5. Press `F5` to open a new Extension Development Host window with the extension running.
-
-### Manual Installation for Local Testing
-
-To test the extension locally without launching a separate development host, you can package it and install it manually.
-
-1. **Package the extension:**
-   Run the packaging script from the project root:
-
-   ```bash
-   npm run package
-   ```
-
-   This will create a `.vsix` file (e.g., `notekeep.vscode-0.0.1.vsix`).
-
-2. **Install the VSIX file:**
-   In VS Code, open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`) and run the **"Extensions: Install from VSIX..."** command. Select the `.vsix` file you just created.
-
-3. **Reload VS Code:**
-   After installation, you will be prompted to reload VS Code to activate the extension.
+This extension is provided as-is for public use.
