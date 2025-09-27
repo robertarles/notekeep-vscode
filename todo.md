@@ -6,9 +6,21 @@ Notekeep VSCode extension
 
 A VS Code extension that provides tools for managing Markdown documents, specifically for folding frontmatter sections.
 
-## Active
+## TODO list of some sort
+
+### Active tasks, backlog should be collapse when notekee-vscode is installed
 
 - **Fold Frontmatter:** Automatically folds the frontmatter section (content between `---` markers) at the beginning of Markdown files to keep your documents clean and readable.
+- [ ] Fold all when opening markdown files that start with "todo"
+  - [ ] Fold all when opening markdown files that start with "note"
+- [ ] Fold all when opening markdown files that start with "idea"
+  - [ ] Fold all when opening markdown files that start with "research"
+  - [ ] Fold all when opening markdown files that start with "project"
+    - [ ] Fold all when opening markdown files that start with "task"
+    - [ ] Fold all when opening markdown files that start with "bug"
+
+### Backlog, not yet active
+
 - [ ] Fold all when opening markdown files that start with "todo"
   - [ ] Fold all when opening markdown files that start with "note"
 - [ ] Fold all when opening markdown files that start with "idea"
@@ -48,13 +60,13 @@ Contributions are welcome!
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/robertarles/notekeep.vscode.git
+   git clone https://github.com/robertarles/notekeep-vscode.git
    ```
 
 2. Navigate to the project directory:
 
    ```bash
-   cd notekeep.vscode
+   cd notekeep-vscode
    ```
 
 3. Install the dependencies:
@@ -77,7 +89,7 @@ To test the extension locally without launching a separate development host, you
    npm run package
    ```
 
-   This will create a `.vsix` file (e.g., `notekeep.vscode-0.0.1.vsix`).
+   This will create a `.vsix` file (e.g., `notekeep-vscode-0.0.1.vsix`).
 
 2. **Install the VSIX file:**
    In VS Code, open the Command Palette (`Ctrl+Shift+P` or `Cmd+Shift+P`) and run the **"Extensions: Install from VSIX..."** command. Select the `.vsix` file you just created.

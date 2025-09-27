@@ -3,6 +3,15 @@ title: Notekeep VS Code Extension
 ---
 A VS Code extension that provides intelligent folding for Markdown documents, specifically designed for managing todo lists and notes with automatic frontmatter and section management.
 
+## Recent Updates
+
+### v0.1.2 - Bug Fixes & Reliability Improvements
+- **🐛 Fixed**: Active section unfolding reliability - sections now unfold correctly every time
+- **⚡ Improved**: Simplified and more reliable unfolding algorithm
+- **🔧 Fixed**: Extension command registration issues that could cause "command not found" errors
+- **🔇 Removed**: Intrusive popup notifications - replaced with non-disruptive console logging
+- **👨‍💻 Added**: Development tools and documentation for contributors
+
 ## Features
 
 - **Auto-Fold Todo Files**: Automatically folds all content when opening Markdown files that start with "todo" (e.g., `todo.md`, `todo.personal.md`, `todo.disney.md`)
@@ -61,6 +70,46 @@ Install from the [Visual Studio Code Marketplace](https://marketplace.visualstud
 
 - Visual Studio Code 1.87.0 or higher
 - Markdown files for full functionality
+
+## Development
+
+### Local Testing & Installation
+
+When developing changes to this extension, use these commands for proper testing:
+
+#### Clean Development Install
+```bash
+npm run dev-install
+```
+This command:
+1. Builds the extension (`npm run build`)
+2. Uninstalls any existing version (`code --uninstall-extension`)
+3. Installs the newly built version (`code --install-extension`)
+
+#### Alternative alias
+```bash
+npm run dev-reinstall
+```
+
+#### Why Clean Installation?
+VS Code aggressively caches extensions and commands. Simply installing over an existing version may not update:
+- Command registrations
+- Extension activation events
+- Package.json contributions
+
+**Always use `dev-install` instead of just `code --install-extension` when testing changes.**
+
+#### Manual Steps (if npm command fails)
+```bash
+npm run build
+code --uninstall-extension robertarles.notekeep-vscode
+code --install-extension notekeep-vscode-[version].vsix
+```
+
+### Debugging
+- Press `F5` in VS Code to launch Extension Development Host
+- Use `Developer: Reload Window` to refresh after changes
+- Check console output for extension logs
 
 ## License
 

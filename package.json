@@ -1,12 +1,12 @@
 {
     "name": "notekeep-vscode",
     "displayName": "Notekeep",
-    "description": "Folds frontmatter sections in markdown documents",
-    "version": "0.1.1",
+    "description": "Intelligent folding for Markdown todo files with automatic active section detection. Fixed active section unfolding reliability in v0.1.2.",
+    "version": "0.1.2",
     "publisher": "robertarles",
     "repository": {
         "type": "git",
-        "url": "https://github.com/robertarles/notekeep.vscode.git"
+        "url": "https://github.com/robertarles/notekeep-vscode.git"
     },
     "engines": {
         "vscode": "^1.87.0"
@@ -42,7 +42,9 @@
         "pretest": "npm run compile && npm run lint",
         "lint": "eslint src --ext ts",
         "test": "vscode-test",
-        "package": "vsce package"
+        "package": "vsce package",
+        "dev-install": "npm run build && code --uninstall-extension robertarles.notekeep-vscode && code --install-extension notekeep-vscode-$(node -p \"require('./package.json').version\").vsix",
+        "dev-reinstall": "npm run dev-install"
     },
     "devDependencies": {
         "@vscode/vsce": "^2.26.0",
